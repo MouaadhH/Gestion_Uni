@@ -1,3 +1,5 @@
+import Exceptions.NoteInvalidException;
+
 public class Module {
     private String nom;
     private int credit;

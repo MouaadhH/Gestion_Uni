@@ -1,9 +1,12 @@
+import Exceptions.FichierIntrouvableException;
+import Exceptions.FormatFichierInvalidException;
+
 import java.io.*;
 import java.util.ArrayList;
 
 public class SaveLoad {
 
-    public static void saveToFile(Section section)throws FichierIntrouvableException  {
+    public static void saveToFile(Section section)throws FichierIntrouvableException {
 
         try {
             FileOutputStream fileOut = new FileOutputStream(section.nomSection+".dat");

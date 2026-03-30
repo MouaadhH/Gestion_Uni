@@ -1,5 +1,7 @@
+import Exceptions.FichierIntrouvableException;
+import Exceptions.SemestreInvalideException;
+
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -197,14 +199,13 @@ public class GestionUniversitaire {
                     case 1:
                         do {
                             System.out.println("-----------------------------------------------------------");
-                            System.out.println("GESTION DES ETUDIANTS");
+                            System.out.println("GESTION DES ÉTUDIANTS");
                             System.out.println("-----------------------------------------------------------");
-                            System.out.println("1. Ajouter un etudiant");
-                            System.out.println("2. Modifier un etudiant");
-                            System.out.println("3. Supprimer un etudiant");
-                            System.out.println("4. Rechercher un etudiant");
-                            System.out.println("5. Lister tous les etudiants");
-                            System.out.println("6. Retour");
+                            System.out.println("1. Ajouter un étudiant");
+                            System.out.println("2. Supprimer un étudiant");
+                            System.out.println("3. Rechercher un étudiant");
+                            System.out.println("4. Lister tous les étudiants");
+                            System.out.println("5. Retour");
                             System.out.println("-----------------------------------------------------------");
                             System.out.print("Votre choix: ");
 
@@ -223,7 +224,7 @@ public class GestionUniversitaire {
                                     if (section.groupes.isEmpty()) {
                                         System.out.println("Creer un groupe (aucun groupe trouve)");
                                         do {
-                                            System.out.println("Nom groupe pour le creer : ");
+                                            System.out.print("Nom groupe pour le creer : ");
                                             nomGroupe = scanner.nextLine().trim();
                                             if (nomGroupe.isEmpty()) System.out.println("Ce champ est obligatoire.");
                                         } while (nomGroupe.isEmpty());
@@ -288,33 +289,7 @@ public class GestionUniversitaire {
                                     section.ajouterEtudiantDansGroupe(etudiant, nomGroupe);
                                     System.out.println("INSCRIPTION REUSSIE!");
                                     break;
-
                                 case 2:
-                                    String idMod;
-                                    do {
-                                        System.out.print("ID de l'etudiant a modifier: ");
-                                        idMod = scanner.nextLine().trim();
-                                        if (idMod.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (idMod.isEmpty());
-
-                                    String ancienG;
-                                    do {
-                                        System.out.println("Le nom de l'ancien groupe:");
-                                        ancienG = scanner.nextLine().trim();
-                                        if (ancienG.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (ancienG.isEmpty());
-
-                                    String nouveauG;
-                                    do {
-                                        System.out.println("Le nom du nouveau groupe:");
-                                        nouveauG = scanner.nextLine().trim();
-                                        if (nouveauG.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (nouveauG.isEmpty());
-
-                                    section.changerEtudiantDeGroupe(idMod, ancienG, nouveauG);
-                                    break;
-
-                                case 3:
                                     String idSup;
                                     do {
                                         System.out.print("ID de l'etudiant a supprimer: ");
@@ -333,7 +308,7 @@ public class GestionUniversitaire {
                                     System.out.println("Etudiant supprime.");
                                     break;
 
-                                case 4:
+                                case 3:
                                     String critere;
                                     do {
                                         System.out.print("Critere de recherche (ID, nom): ");
@@ -343,18 +318,20 @@ public class GestionUniversitaire {
 
                                     if (section.rechercheEtudiant(critere)) {
                                         System.out.println("Etudiant trouve");
+                                        Etudiant etudiant1 = section.getEtudiant(critere);
+                                        System.out.println("- "+etudiant1.getNom()+" "+etudiant1.getPrenom()+" /ID: "+etudiant1.getId()+" / Email: "+etudiant1.getEmail()+" / Date de Naissance: "+etudiant1.getDateNaissance());
                                     } else {
                                         System.out.println("Etudiant non trouve");
                                     }
                                     break;
 
-                                case 5:
+                                case 4:
                                     for (Groupe g : section.groupes.values()) {
                                         g.afficherEtudiants();
                                     }
                                     break;
 
-                                case 6:
+                                case 5:
                                     System.out.println("Retour au menu principal...");
                                     break;
 
@@ -362,7 +339,7 @@ public class GestionUniversitaire {
                                     System.out.println("Choix invalide !");
                             }
 
-                        } while (choix != 6);
+                        } while (choix != 5);
                         break;
 
                     case 2:
@@ -371,7 +348,9 @@ public class GestionUniversitaire {
                             System.out.println("GESTION DES GROUPES");
                             System.out.println("-----------------------------------------------------------");
                             System.out.println("1. Creer un groupe");
-                            System.out.println("2. Retour");
+                            System.out.println("2. Modifier un groupe");
+                            System.out.println("3. Supprimer un groupe");
+                            System.out.println("4. Retour");
                             System.out.println("------------------------------------------------------------");
                             System.out.print("Votre choix: ");
 
@@ -381,74 +360,117 @@ public class GestionUniversitaire {
                             if (choix == 1) {
                                 String nomGroupe;
                                 do {
-                                    System.out.println("Donner le nom du groupe:");
+                                    System.out.print("Donner le nom du groupe:");
                                     nomGroupe = scanner.nextLine().trim();
                                     if (nomGroupe.isEmpty()) System.out.println("Ce champ est obligatoire.");
                                 } while (nomGroupe.isEmpty());
 
                                 Groupe groupeObj = new Groupe(nomGroupe);
-                                String ch = "";
-                                do {
-                                    String idG;
-                                    do {
-                                        System.out.print("Id: ");
-                                        idG = scanner.nextLine().trim();
-                                        if (idG.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (idG.isEmpty());
-
-                                    String nomG;
-                                    do {
-                                        System.out.print("Nom: ");
-                                        nomG = scanner.nextLine().trim();
-                                        if (nomG.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (nomG.isEmpty());
-
-                                    String prenomG;
-                                    do {
-                                        System.out.print("Prenom: ");
-                                        prenomG = scanner.nextLine().trim();
-                                        if (prenomG.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (prenomG.isEmpty());
-
-                                    String emailG;
-                                    do {
-                                        System.out.print("Email: ");
-                                        emailG = scanner.nextLine().trim();
-                                        if (emailG.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (emailG.isEmpty());
-
-                                    LocalDate dateNaissanceG = null;
-                                    do {
-                                        try {
-                                            System.out.print("Date de Naissance (AAAA-MM-JJ): ");
-                                            String dateStr = scanner.nextLine().trim();
-                                            if (dateStr.isEmpty()) {
-                                                System.out.println("Ce champ est obligatoire.");
-                                                continue;
-                                            }
-                                            dateNaissanceG = LocalDate.parse(dateStr);
-                                        } catch (Exception e) {
-                                            System.out.println("Format de date invalide. Utilisez AAAA-MM-JJ.");
-                                        }
-                                    } while (dateNaissanceG == null);
-
-                                    Etudiant etudiantG = new Etudiant(idG, nomG, prenomG, emailG, dateNaissanceG);
-                                    groupeObj.ajouterEtudiant(etudiantG);
-
-                                    do {
-                                        System.out.println("Creer autre étudiant (C) / Quitter (Q)");
-                                        ch = scanner.nextLine().trim();
-                                        if (ch.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                                    } while (ch.isEmpty());
-
-                                } while (!ch.equalsIgnoreCase("Q"));
-
                                 section.ajouterGroupe(groupeObj);
+                                String chadd;
+                                System.out.print("Souhaitez-vous ajouter un étudiant? (O/N)");
+                                chadd = scanner.nextLine();
 
-                            } else if (choix != 2) {
+
+                                if(chadd.equals("n") || chadd.equals("N")) {
+                                    String ch = "";
+                                    do {
+                                        String idG;
+                                        do {
+                                            System.out.print("Id: ");
+                                            idG = scanner.nextLine().trim();
+                                            if (idG.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                        } while (idG.isEmpty());
+
+                                        String nomG;
+                                        do {
+                                            System.out.print("Nom: ");
+                                            nomG = scanner.nextLine().trim();
+                                            if (nomG.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                        } while (nomG.isEmpty());
+
+                                        String prenomG;
+                                        do {
+                                            System.out.print("Prenom: ");
+                                            prenomG = scanner.nextLine().trim();
+                                            if (prenomG.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                        } while (prenomG.isEmpty());
+
+                                        String emailG;
+                                        do {
+                                            System.out.print("Email: ");
+                                            emailG = scanner.nextLine().trim();
+                                            if (emailG.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                        } while (emailG.isEmpty());
+
+                                        LocalDate dateNaissanceG = null;
+                                        do {
+                                            try {
+                                                System.out.print("Date de Naissance (AAAA-MM-JJ): ");
+                                                String dateStr = scanner.nextLine().trim();
+                                                if (dateStr.isEmpty()) {
+                                                    System.out.println("Ce champ est obligatoire.");
+                                                    continue;
+                                                }
+                                                dateNaissanceG = LocalDate.parse(dateStr);
+                                            } catch (Exception e) {
+                                                System.out.println("Format de date invalide. Utilisez AAAA-MM-JJ.");
+                                            }
+                                        } while (dateNaissanceG == null);
+
+                                        Etudiant etudiantG = new Etudiant(idG, nomG, prenomG, emailG, dateNaissanceG);
+                                        section.ajouterEtudiantDansGroupe(etudiantG, groupeObj.nomGroupe);
+
+                                        do {
+                                            System.out.println("Creer autre étudiant (C) / Quitter (Q)");
+                                            ch = scanner.nextLine().trim();
+                                            if (ch.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                        } while (ch.isEmpty());
+
+                                    } while (!ch.equalsIgnoreCase("Q"));
+                                }
+
+
+                            } else if (choix == 2) {
+
+                                for (Groupe g : section.groupes.values()) {
+                                    g.afficherEtudiants();
+                                }
+
+                                String idMod;
+                                do {
+                                    System.out.print("ID de l'etudiant a modifier: ");
+                                    idMod = scanner.nextLine().trim();
+                                    scanner.nextLine();
+                                    if (idMod.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                } while (idMod.isEmpty());
+
+                                String ancienG;
+                                do {
+                                    System.out.println("Le nom de l'ancien groupe:");
+                                    ancienG = scanner.nextLine().trim();
+                                    if (ancienG.isEmpty()) System.out.print("Ce champ est obligatoire.");
+                                } while (ancienG.isEmpty());
+
+                                String nouveauG;
+                                do {
+                                    System.out.println("Le nom du nouveau groupe:");
+                                    nouveauG = scanner.nextLine().trim();
+                                    if (nouveauG.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                                } while (nouveauG.isEmpty());
+
+                                section.changerEtudiantDeGroupe(idMod, ancienG, nouveauG);
+
+                            } else if (choix == 3) {
+                                System.out.println("Entrer le nom de Groupe pour le supprimer");
+                                String nomGroupesup = scanner.nextLine();
+
+                                section.supprimerGroupe(nomGroupesup);
+
+                            } else {
                                 System.out.println("Choix invalide !");
                             }
-                        } while (choix != 2);
+                        } while (choix != 4);
                         break;
 
                     case 3:

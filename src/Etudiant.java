@@ -1,3 +1,7 @@
+import Exceptions.DateNaissanceInvalideException;
+import Exceptions.EmailInvalidException;
+import Exceptions.ModuleNotFound;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 

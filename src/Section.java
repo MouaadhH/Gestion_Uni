@@ -1,6 +1,11 @@
+import Exceptions.EtudiantNotFoundException;
+import Exceptions.FormatFichierInvalidException;
+import Exceptions.GroupePleinException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Section implements Serializable {
     String nomSection;
@@ -34,7 +39,7 @@ public class Section implements Serializable {
     //Gestion des étudiantes
     public void ajouterEtudiantDansGroupe(Etudiant e , String nomGroupe) throws GroupePleinException {
 
-        if(groupes.get(nomGroupe).chercherEtudiant(e.getNom())){
+        if(!groupes.get(nomGroupe).chercherEtudiant(e.getNom())){
             groupes.get(nomGroupe).ajouterEtudiant(e);
         }
     }
@@ -45,12 +50,17 @@ public class Section implements Serializable {
     }
 
     public void changerEtudiantDeGroupe(String id, String ancienG, String nouveauG) throws EtudiantNotFoundException, GroupePleinException {
+       if(groupes.containsKey(ancienG) && groupes.containsKey(nouveauG)) {
+           Etudiant e = groupes.get(ancienG).getEtudiant(id);
 
-       Etudiant e = groupes.get(ancienG).getEtudiant(id);
+           supprimerEtudiantDeGroupe(id, ancienG);
 
-       supprimerEtudiantDeGroupe(id , ancienG);
-
-       ajouterEtudiantDansGroupe(e,nouveauG);
+           ajouterEtudiantDansGroupe(e, nouveauG);
+       }
+       else {
+           if(!rechercheEtudiant(ancienG)) System.out.println("Ancien Groupe non trouve");
+           if(!rechercheEtudiant(nouveauG)) System.out.println("Nouveau Groupe non trouve");
+       }
     }
 
     public boolean rechercheEtudiant(String critere){
@@ -72,7 +82,7 @@ public class Section implements Serializable {
                 }
             }
         }
-        throw new EtudiantNotFoundException("Etudiant introuvable");
+        return null;
     }
 
     //Gestion des modules
@@ -114,6 +124,26 @@ public class Section implements Serializable {
         }
 
 
+    }
+
+    public void supprimerGroupe(String nomGroupe) throws GroupePleinException {
+
+        Groupe groupe =groupes.get(nomGroupe);
+        if(groupe.estVide()) {
+            groupes.remove(nomGroupe);
+        }else if(!groupe.estVide()){
+            System.out.println("Ce groupe contient des étudiants. Veuillez choisir un autre groupe pour y déplacer les étudiants ");
+            for(Groupe g : groupes.values()){
+                if(30 - g.etudiants.size() >= groupe.etudiants.size()) System.out.println(g.nomGroupe+" ("+g.etudiants.size()+"/30) étudiants");
+            }
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Nom Groupe: ");
+            String nomGrou = scanner.nextLine();
+            for(Etudiant e : groupe.etudiants){
+                groupes.get(nomGrou).ajouterEtudiant(e);
+            }
+            groupes.remove(nomGroupe);
+        }
     }
 
 }

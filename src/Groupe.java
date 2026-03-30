@@ -1,5 +1,7 @@
+import Exceptions.EtudiantNotFoundException;
+import Exceptions.GroupePleinException;
+
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Groupe {
     final String nomGroupe;
@@ -9,13 +11,13 @@ public class Groupe {
         this.nomGroupe = nom;
     }
 
-    public void ajouterEtudiant(Etudiant e)throws GroupePleinException{
+    public void ajouterEtudiant(Etudiant e)throws GroupePleinException {
         if(etudiants.size()>30) throw new GroupePleinException("Le Groupe est plein");
         if(e != null && !etudiants.contains(e)){
         etudiants.add(e);}
     }
 
-    public void supprimerEtudiant(Etudiant e)throws EtudiantNotFoundException{
+    public void supprimerEtudiant(Etudiant e)throws EtudiantNotFoundException {
         if(!chercherEtudiant(e.getId())) throw new EtudiantNotFoundException("Étudiant non trouvé pour le supprimer");
         etudiants.remove(e);
     }
@@ -35,8 +37,13 @@ public class Groupe {
     }
 
     public void afficherEtudiants() {
-        System.out.println("Les etudiants de groupe"+ nomGroupe);
-        etudiants.stream().forEach(System.out::println);
+        System.out.println("Les étudiants de groupe "+ nomGroupe);
+        int count=0;
+        for(Etudiant e : etudiants){
+            count++;
+            System.out.println(count+"- "+e.getNom()+" "+e.getPrenom()+" /ID: "+e.getId()+" / Email: "+e.getEmail()+" / Date de Naissance: "+e.getDateNaissance());
+
+        }
     }
 
     public int getNombreEtudiants(){

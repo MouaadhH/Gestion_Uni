@@ -1,7 +1,12 @@
 import Exceptions.FichierIntrouvableException;
+import Exceptions.FormatFichierInvalidException;
 import Exceptions.SemestreInvalideException;
 
+import Exceptions.*;
+
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -677,7 +682,7 @@ public class GestionUniversitaire {
 
                                     System.out.print("Numero du semestre: ");
                                     int numSem = scanner.nextInt();
-                                    scanner.nextLine();
+
                                     Semestre sem = new Semestre(numSem);
                                     section.semesters.put(numSem,sem);
                                     System.out.println("Semestre " + numSem + " cree.");
@@ -685,7 +690,7 @@ public class GestionUniversitaire {
 
                                 case 2:
                                     System.out.print("Numero du semestre: ");
-                                    int num = scanner.nextInt();
+                                    String num = scanner.nextLine();
                                     scanner.nextLine();
 
                                     String moduleS;
@@ -697,7 +702,7 @@ public class GestionUniversitaire {
 
                                     boolean validation = false;
                                     for (Semestre s : section.semesters.values()) {
-                                        if (num == s.numero) {
+                                        if (num.equals(s.numero)) {
                                             s.ajouterNomModules(moduleS);
                                             validation = true;
                                         }
@@ -731,12 +736,12 @@ public class GestionUniversitaire {
 
                                 case 4:
                                     System.out.print("Numero du semestre: ");
-                                    int semList = scanner.nextInt();
+                                    String semList = scanner.nextLine();
                                     scanner.nextLine();
 
                                     boolean valid = false;
                                     for (Semestre s : section.semesters.values()) {
-                                        if (semList == s.numero) {
+                                        if (semList.equals(s.numero)) {
                                             s.getNomsModules();
                                             valid = true;
                                         }
@@ -768,13 +773,73 @@ public class GestionUniversitaire {
                         break;
 
                     case 5:
-                        String nomfichie;
+                        // Step 1: get the file name
+                        String nomFichier;
                         do {
-                            System.out.println("Donner le nom de fichier");
-                            nomfichie = scanner.nextLine().trim();
-                            if (nomfichie.isEmpty()) System.out.println("Ce champ est obligatoire.");
-                        } while (nomfichie.isEmpty());
-                        SaveLoad.lireModulesDepuisFichier(nomfichie);
+                            System.out.print("Nom du fichier modules (.txt): ");
+                            nomFichier = scanner.nextLine().trim();
+                            if (nomFichier.isEmpty()) System.out.println("Ce champ est obligatoire.");
+                        } while (nomFichier.isEmpty());
+
+                        // Step 2: read modules from file
+                        ArrayList<Module> modulesLus;
+                        try {
+                            modulesLus = SaveLoad.lireModulesDepuisFichier(nomFichier);
+                        } catch (FichierIntrouvableException | FormatFichierInvalidException e) {
+                            System.out.println("Erreur: " + e.getMessage());
+                            break;
+                        }
+                        if (modulesLus.isEmpty()) {
+                            System.out.println("Aucun module trouve dans le fichier.");
+                            break;
+                        }
+
+                        // Step 3: ask for semester number
+                        int numSemestre = 0;
+                        boolean validSemestre = false;
+                        do {
+                            try {
+                                System.out.print("Numero du semestre: ");
+                                numSemestre = Integer.parseInt(scanner.nextLine().trim());
+                                if (numSemestre <= 0) {
+                                    System.out.println("Le numero doit etre positif.");
+                                } else {
+                                    validSemestre = true;
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("Veuillez entrer un nombre entier.");
+                            }
+                        } while (!validSemestre);
+
+                        // Step 4: get or create semester
+                        Semestre semestre = section.semesters.get(numSemestre);
+                        if (semestre == null) {
+                            semestre = new Semestre(numSemestre);
+                            section.semesters.put(numSemestre, semestre);
+                            System.out.println("Semestre " + numSemestre + " cree.");
+                        } else {
+                            System.out.println("Semestre " + numSemestre + " trouve.");
+                        }
+
+                        // Step 5: add module names to semester
+                        for (Module m : modulesLus) {
+                            semestre.ajouterNomModules(m.getNom());
+                        }
+
+                        // Step 6: add modules to every student in every groupe
+                        int totalEtudiants = 0;
+                        for (Groupe groupe : section.groupes.values()) {
+                            for (Etudiant etudiant : groupe.etudiants) {
+                                for (Module m : modulesLus) {
+                                    etudiant.ajouterModule(m);
+                                }
+                                totalEtudiants++;
+                            }
+                        }
+
+                        System.out.println(modulesLus.size() + " module(s) ajoutes au semestre " + numSemestre + ".");
+                        System.out.println(modulesLus.size() + " module(s) assignes a " + totalEtudiants + " etudiant(s) dans "
+                                + section.groupes.size() + " groupe(s).");
                         break;
 
                     case 6:
@@ -816,23 +881,30 @@ public class GestionUniversitaire {
                         break;
 
                     case 8:
-                        SaveLoad.saveToFile(section);
-                        System.out.println("Section sauvegardee dans " + section.nomSection + ".dat");
+                        try {
+                            SaveLoad.saveToFile(section);
+                            System.out.println("Section sauvegardee dans " + section.nomSection + ".dat");
+                        } catch (IOException e) {
+                            System.out.println("Erreur lors de la sauvegarde: " + e.getMessage());
+                        }
                         break;
 
                     case 9:
                         String nomLoad;
                         do {
-                            System.out.print("Nom section a charger: ");
+                            System.out.print("Nom de la section a charger: ");
                             nomLoad = scanner.nextLine().trim();
                             if (nomLoad.isEmpty()) System.out.println("Ce champ est obligatoire.");
                         } while (nomLoad.isEmpty());
-                        section = SaveLoad.loadFromFile(nomLoad);
-                        if (section == null) {
-                            throw new FichierIntrouvableException("Fichier introuvable");
+
+                        try {
+                            section = SaveLoad.loadFromFile(nomLoad);
+                            System.out.println("Section chargee avec succes!");
+                            System.out.println(section.nomSection + " - " + section.cycleType +
+                                    " (" + section.niveau + " ans)");
+                        } catch (FichierIntrouvableException e) {
+                            System.out.println("Erreur: " + e.getMessage());
                         }
-                        System.out.println("Section chargee avec succes!\n" +
-                                section.nomSection + " - " + section.cycleType + " (" + section.niveau + " ans)");
                         break;
 
                     case 10:

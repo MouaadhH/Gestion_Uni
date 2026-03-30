@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Semestre {
-    protected int numero;
+    protected int  numero;
     ArrayList<String> nomsModules = new ArrayList<>();
 
     public Semestre(int numero){
